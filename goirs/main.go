@@ -42,8 +42,8 @@ func main() {
 			if tokenize{
 				source := filepath.Join(config.Corpus, file.Name())
 				dest := filepath.Join(config.Filtered, file.Name()+".ind")
-				stats := filepath.Join(config.Stats, "tokenizer.txt")
-				tokenizeFile(source, dest, stats)
+				//stats := filepath.Join(config.Stats, "tokenizer.txt")
+				tokenizeFile(source, dest, nil)
 			}
 		}
 	}

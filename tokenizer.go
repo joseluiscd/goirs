@@ -1,0 +1,78 @@
+package goirs
+
+import (
+	"bufio"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
+	"regexp"
+	"strings"
+    "unicode"
+)
+
+
+var (
+	notallowed = regexp.MustCompile("[^\\p{L}[:digit:]_-]+")
+)
+
+func isMn (r rune) bool {
+    return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
+func cleanToken(in <-chan string, out chan string) {
+    defer close(out)
+
+	for currstr := range in {
+		currstr = strings.Replace(currstr, "ñ", "*", -1)
+
+        //------------------------------------------------------
+        // Aquí comienza un bloque de código copiado de StackOverflow...
+		b := make([]byte, len(currstr))
+
+		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+		_, _, e := t.Transform(b, []byte(currstr), true)
+		if e != nil {
+			panic(e)
+		}
+        //Fin del código de StackOverflow
+        //-----------------------------------------------------
+
+        currstr = strings.Replace(strings.ToLower(string(b)), "*", "ñ", -1)
+		out<-currstr
+	}
+}
+
+func tokenizeWords(in <-chan string, out chan string) {
+    defer close(out)
+	for currstr := range in {
+		currstr = notallowed.ReplaceAllString(currstr, " ")
+        for _,x := range(strings.Split(currstr, " ")){
+            if len(x)>0{
+                out <- x
+            }
+        }
+	}
+}
+
+func tokenizeSpaces(in *bufio.Scanner, out chan string) {
+    defer close(out)
+	for in.Scan() {
+		currstr := in.Text()
+		out <- currstr
+	}
+}
+
+//TokenizerIterator devuelve un canal que suelta tokens...
+func TokenizerIterator(input *bufio.Reader) <-chan string {
+	scanner := bufio.NewScanner(input)
+	scanner.Split(bufio.ScanWords)
+
+	uno := make(chan string)
+    dos := make(chan string)
+    tres := make(chan string)
+
+	go tokenizeSpaces(scanner, uno)
+    go tokenizeWords(uno, dos)
+    go cleanToken(dos, tres)
+
+	return tres
+}

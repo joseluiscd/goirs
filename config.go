@@ -10,6 +10,7 @@ type Configuration struct {
 	Corpus   string
 	Filtered string
 	Stopped  string
+	Stats string "."
 }
 
 //LoadConfiguration carga un archivo de configuración

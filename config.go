@@ -30,3 +30,14 @@ func LoadConfiguration(file string) (*Configuration, error) {
 
 	return toRet, nil
 }
+
+//Save guarda la configuración en un archivo
+func (cfg *Configuration) Save(file string) error {
+
+	content, err := json.Marshal(cfg)
+	if err!=nil{
+		return err
+	}
+
+	return ioutil.WriteFile(file, content, 0600)
+}

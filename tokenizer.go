@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
     "unicode"
+	"os"
 )
 
 
@@ -82,4 +83,31 @@ func TokenizerIterator(input io.Reader) <-chan string {
     go cleanToken(dos, tres)
 
 	return tres
+}
+
+func tokenWrite(file io.Writer, in <-chan string, out chan string) {
+	defer close(out)
+	for token := range in{
+		io.WriteString(file, token)
+		io.WriteString(file ,"\n")
+		out <- token
+	}
+}
+//TokenizerWriterIterator Igual que TokenizerIterator, pero que escribe los
+//tokens en el fichero especificado si write es true
+func TokenizerWriterIterator(input io.Reader, file string, write bool) <-chan string{
+	if write {
+		out := make(chan string, 128)
+		in := TokenizerIterator(input)
+
+		dest, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0600)
+		if err != nil {
+			panic(err)
+		}
+
+		go tokenWrite(dest, in, out)
+
+		return out
+	}
+	return TokenizerIterator(input)
 }

@@ -40,7 +40,7 @@ func extractTitle(root *gosoup.Node) string {
 func writeBody(root *gosoup.Node, output io.Writer) {
 	//Vivan las funciones anónimas y la programación funcional!!!
 
-	FindFirst(root, func(r *gosoup.Node) bool {
+	findFirst(root, func(r *gosoup.Node) bool {
 		return (r.IsTag("div") && r.HasAttr("class") && r.Attr("class") == "node-inner")
 	}).Descendants().Filter(func(n *gosoup.Node) bool {
 		return n.IsTag("p")
@@ -54,8 +54,7 @@ func writeBody(root *gosoup.Node, output io.Writer) {
 	})
 }
 
-//FindFirst está como retrocompatibilidad con el sistema anterior
-func FindFirst(root *gosoup.Node, cond func(*gosoup.Node) bool) *gosoup.Node {
+func findFirst(root *gosoup.Node, cond func(*gosoup.Node) bool) *gosoup.Node {
 	iterator := root.Descendants().Filter(cond)
 	return iterator.Next()
 }

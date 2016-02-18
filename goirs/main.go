@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"fmt"
 )
 
 func dieOn(err error){
@@ -20,37 +21,65 @@ func dieOn(err error){
 
 func main() {
 	var (
-		tokenize bool
-		recordStats bool
 		configLoc string
+		generateConfig bool
 
+		writeFiltered = false
+		writeStopped = false
 	)
 
-	flag.BoolVar(&tokenize, "tok", false, "Usar sólo el tokenizador")
+	flag.BoolVar(&generateConfig, "genconfig", false, "Generar un fichero de configuración en el directorio actual")
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
-	flag.BoolVar(&recordStats, "stats", false, "Especifica si se deben guardar estadísticas")
+
 	flag.Parse()
 
+	//Generar configuración si es necesario
+	if generateConfig {
+		cfg := new(goirs.Configuration)
+		err := cfg.Save("./conf.data")
+		if err != nil{
+			fmt.Println("Fallo al crear la configuración")
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
+	//Cargar configuración
 	config, err := goirs.LoadConfiguration(configLoc)
 	dieOn(err)
 
+	//Decidir qué hacemos en función de la configuración
+	if config.Filtered != "" {
+		writeFiltered = true
+	}
+
+	if config.Stopped != "" {
+		writeStopped = true
+	}
+
+	//Leer ficheros del corpus y aplicarles las operaciones
 	dir, err := ioutil.ReadDir(config.Corpus)
 	dieOn(err)
 	for _, file := range(dir){
 		if file.Mode().IsRegular() && strings.HasSuffix(file.Name(), ".html"){
 			//Tenemos un fichero candidato
+
+			/*
 			if tokenize{
-				source := filepath.Join(config.Corpus, file.Name())
-				dest := filepath.Join(config.Filtered, file.Name()+".ind")
-				//stats := filepath.Join(config.Stats, "tokenizer.txt")
-				tokenizeFile(source, dest, nil)
-			}
+
+				dest :=
+				tokenizeFile(source, dest)
+			}*/
+			source := filepath.Join(config.Corpus, file.Name())
+			tokenized := filepath.Join(config.Filtered, file.Name()+".tok")
+			stopped := filepath.Join(config.Filtered, file.Name()+".tok.stop")
+			goirs.TokenizerWriterIterator(file, tokenizedd)
 		}
 	}
 
 }
 
-func tokenizeFile(path string, dest string, stats io.Writer){
+func tokenizeFile(path string, dest string){
 	ntoks := 0
 	file, err := os.Open(path)
 	dieOn(err)

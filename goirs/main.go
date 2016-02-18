@@ -62,11 +62,10 @@ func tokenizeFile(path string, dest string, stats io.Writer){
 
 	readfile := bufio.NewReader(file)
 	buffer := bytes.NewBuffer(nil)
-	toTokenize := bufio.NewWriter(buffer)
-	goirs.Filter(readfile, toTokenize)
 
-	t := bufio.NewReader(buffer)
-	it := goirs.TokenizerIterator(t)
+	goirs.Filter(readfile, buffer)
+
+	it := goirs.TokenizerIterator(buffer)
 
 	for x:= range it{
 		ntoks ++

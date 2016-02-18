@@ -1,12 +1,12 @@
 package goirs
 
 import (
-	"bufio"
+	"io"
 	"github.com/joffrey-bion/gosoup"
 )
 
 //Filter filtra el HTML de un documento proporcionado por input
-func Filter(input *bufio.Reader, output *bufio.Writer) error {
+func Filter(input io.Reader, output io.Writer) error {
 
 	root, err := gosoup.Parse(input)
 	if err != nil {
@@ -15,12 +15,10 @@ func Filter(input *bufio.Reader, output *bufio.Writer) error {
 
 	newroot := root.ChildrenByTag("html").Next()
 
-	output.WriteString(extractTitle(newroot))
-	output.WriteByte('\n')
-	output.Flush()
+	io.WriteString(output, extractTitle(newroot))
+	io.WriteString(output, "\n")
 
 	writeBody(newroot, output)
-	output.Flush()
 	return nil
 }
 
@@ -39,7 +37,7 @@ func extractTitle(root *gosoup.Node) string {
 }
 
 //Encontrar el meollo del asunto
-func writeBody(root *gosoup.Node, output *bufio.Writer) {
+func writeBody(root *gosoup.Node, output io.Writer) {
 	//Vivan las funciones anónimas y la programación funcional!!!
 
 	FindFirst(root, func(r *gosoup.Node) bool {
@@ -50,8 +48,8 @@ func writeBody(root *gosoup.Node, output *bufio.Writer) {
 		n.Descendants().Filter(func(m *gosoup.Node) bool {
 			return m.Type == gosoup.TextNode
 		}).Apply(func(m *gosoup.Node) {
-			output.WriteString(m.Data)
-			output.WriteByte(' ')
+			io.WriteString(output, m.Data)
+			io.WriteString(output, " ")
 		})
 	})
 }

@@ -2,6 +2,7 @@ package goirs
 
 import (
 	"bufio"
+	"io"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"regexp"
@@ -62,7 +63,7 @@ func tokenizeSpaces(in *bufio.Scanner, out chan string) {
 }
 
 //TokenizerIterator devuelve un canal que suelta tokens...
-func TokenizerIterator(input *bufio.Reader) <-chan string {
+func TokenizerIterator(input io.Reader) <-chan string {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 

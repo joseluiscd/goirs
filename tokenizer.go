@@ -19,33 +19,32 @@ func isMn (r rune) bool {
     return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
-func stopper(in <-chan string, out chan string){
-	for currstr := range in {
-		//Cambiar esto por el stopper
-		out <- currstr
+//CleanToken elimina caracteres extraños de un token y normaliza los acentos
+func CleanToken(oldToken string) string {
+	oldToken = strings.Replace(oldToken, "ñ", "*", -1)
+
+	//------------------------------------------------------
+	// Aquí comienza un bloque de código copiado de StackOverflow...
+	b := make([]byte, len(oldToken))
+
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	_, _, e := t.Transform(b, []byte(oldToken), true)
+	if e != nil {
+		return ""
 	}
+	//Fin del código de StackOverflow
+	//-----------------------------------------------------
+
+	return strings.Replace(strings.ToLower(string(b)), "*", "ñ", -1)
 }
 
 func cleanToken(in <-chan string, out chan string) {
     defer close(out)
 
 	for currstr := range in {
-		currstr = strings.Replace(currstr, "ñ", "*", -1)
-
-        //------------------------------------------------------
-        // Aquí comienza un bloque de código copiado de StackOverflow...
-		b := make([]byte, len(currstr))
-
-		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-		_, _, e := t.Transform(b, []byte(currstr), true)
-		if e != nil {
-			panic(e)
+		if token := CleanToken(currstr); len(token)>0{
+			out<-token
 		}
-        //Fin del código de StackOverflow
-        //-----------------------------------------------------
-
-        currstr = strings.Replace(strings.ToLower(string(b)), "*", "ñ", -1)
-		out<-currstr
 	}
 }
 
@@ -77,12 +76,10 @@ func TokenizerIterator(input io.Reader) <-chan string {
 	uno := make(chan string, 128)
     dos := make(chan string, 128)
     tres := make(chan string, 128)
-	cuatro := make(chan string, 128)
 
 	go tokenizeSpaces(scanner, uno)
     go tokenizeWords(uno, dos)
     go cleanToken(dos, tres)
-	go stopper(tres, cuatro)
 
-	return cuatro
+	return tres
 }

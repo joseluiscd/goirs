@@ -19,6 +19,13 @@ func isMn (r rune) bool {
     return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
+func stopper(in <-chan string, out chan string){
+	for currstr := range in {
+		//Cambiar esto por el stopper
+		out <- currstr
+	}
+}
+
 func cleanToken(in <-chan string, out chan string) {
     defer close(out)
 
@@ -70,10 +77,12 @@ func TokenizerIterator(input io.Reader) <-chan string {
 	uno := make(chan string, 128)
     dos := make(chan string, 128)
     tres := make(chan string, 128)
+	cuatro := make(chan string, 128)
 
 	go tokenizeSpaces(scanner, uno)
     go tokenizeWords(uno, dos)
     go cleanToken(dos, tres)
+	go stopper(tres, cuatro)
 
-	return tres
+	return cuatro
 }

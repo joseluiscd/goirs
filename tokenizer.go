@@ -66,9 +66,9 @@ func TokenizerIterator(input *bufio.Reader) <-chan string {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 
-	uno := make(chan string)
-    dos := make(chan string)
-    tres := make(chan string)
+	uno := make(chan string, 128)
+    dos := make(chan string, 128)
+    tres := make(chan string, 128)
 
 	go tokenizeSpaces(scanner, uno)
     go tokenizeWords(uno, dos)

@@ -89,11 +89,12 @@ func main() {
 			}*/
 			source := filepath.Join(config.Corpus, file.Name())
 
-			tokenized := filepath.Join(config.Filtered, file.Name()+".tok")
-			stopped := filepath.Join(config.Filtered, file.Name()+".tok.stop")
+			tokenized = filepath.Join(config.Filtered, file.Name()+".tok")
+			stopped = filepath.Join(config.Filtered, file.Name()+".tok.stop")
 
-			
-			goirs.TokenizerWriterIterator(source, tokenized, writeTokenized)
+			parsed := goirs.FilterFile(source)
+
+			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized)
 		}
 	}
 

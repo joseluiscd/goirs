@@ -95,12 +95,14 @@ func tokenWrite(file io.Writer, in <-chan string, out chan string) {
 }
 //TokenizerWriterIterator Igual que TokenizerIterator, pero que escribe los
 //tokens en el fichero especificado si write es true
-func TokenizerWriterIterator(input io.Reader, file string, write bool) <-chan string{
+func TokenizerWriterIterator(input io.Reader, file string, write bool) StringIterator {
 	if write {
 		out := make(chan string, 128)
 		in := TokenizerIterator(input)
 
-		dest, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0600)
+		dest, err := os.Create(file)
+		defer dest.Close()
+
 		if err != nil {
 			panic(err)
 		}

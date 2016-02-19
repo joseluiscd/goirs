@@ -3,6 +3,7 @@ package goirs
 import(
     "io"
     "bufio"
+    "os"
 )
 
 //Stopper ...
@@ -17,13 +18,12 @@ func stopper(stop Stopper, input <-chan string, output chan string) {
     }
 }
 
-//StopperIterator toma como parámetro un canal que devuelve tokens y devuelve
-// aquellos que no están en el stopper
-func StopperIterator(tokens <-chan string, stop Stopper) chan string {
+//StopperIterator devuelve aquellos tokens que no están en el stopper
+func (tokens StringIterator) StopperIterator(stop Stopper) StringIterator {
     stopped := make(chan string, 128)
 
     go stopper(stop, tokens, stopped)
-    
+
     return stopped
 }
 
@@ -43,9 +43,36 @@ func ReadStopper(input io.Reader) Stopper {
 }
 
 //WriteStopper guarda el stopper (ya normalizado)
-func WriteStopper(stopper Stopper, output io.Writer){
+func (stopper Stopper) WriteStopper(output io.Writer){
     for x := range stopper {
         io.WriteString(output, x)
         io.WriteString(output, "\n")
     }
+}
+
+//StopperWriterIterator igual que StopperIterator, pero escribe los cambios y se ejecuta opcionalmente
+func (tokens StringIterator) StopperWriterIterator(dostop bool, file string, writeStop bool, stop Stopper) StringIterator {
+    if dostop {
+        if writeStop {
+            towrite, err := os.Create(file)
+            defer towrite.Close()
+            if err != nil {
+                panic(err)
+            }
+            out := make(chan string, 128)
+    		in := tokens.StopperIterator(stop)
+
+    		dest, err := os.Create(file)
+    		defer dest.Close()
+
+    		if err != nil {
+    			panic(err)
+    		}
+    		go tokenWrite(dest, in, out)
+    		return out
+
+        }
+        return tokens.StopperIterator(stop)
+    }
+    return tokens
 }

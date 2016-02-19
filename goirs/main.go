@@ -9,7 +9,6 @@ import (
 	"os"
 	"bufio"
 	"bytes"
-	"io"
 	"fmt"
 )
 
@@ -24,13 +23,18 @@ func main() {
 		configLoc string
 		generateConfig bool
 
-		writeFiltered = false
+		writeTokenized = false
 		writeStopped = false
+
+		tokenize = true
+		stop = false
+
+		practice = 0
 	)
 
 	flag.BoolVar(&generateConfig, "genconfig", false, "Generar un fichero de configuración en el directorio actual")
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
-
+	flag.IntVar(&practice, "prac", 1, "Práctica que se quiere ejecutar")
 	flag.Parse()
 
 	//Generar configuración si es necesario
@@ -48,9 +52,18 @@ func main() {
 	config, err := goirs.LoadConfiguration(configLoc)
 	dieOn(err)
 
+	//Prácticas a ejecutar
+	switch practice {
+	case 2:
+		stop = true
+		fallthrough
+	case 1:
+		tokenize = true
+
+	}
 	//Decidir qué hacemos en función de la configuración
 	if config.Filtered != "" {
-		writeFiltered = true
+		writeTokenized = true
 	}
 
 	if config.Stopped != "" {
@@ -60,6 +73,10 @@ func main() {
 	//Leer ficheros del corpus y aplicarles las operaciones
 	dir, err := ioutil.ReadDir(config.Corpus)
 	dieOn(err)
+
+	var tokenized string
+	var stopped string
+
 	for _, file := range(dir){
 		if file.Mode().IsRegular() && strings.HasSuffix(file.Name(), ".html"){
 			//Tenemos un fichero candidato
@@ -71,9 +88,12 @@ func main() {
 				tokenizeFile(source, dest)
 			}*/
 			source := filepath.Join(config.Corpus, file.Name())
+
 			tokenized := filepath.Join(config.Filtered, file.Name()+".tok")
 			stopped := filepath.Join(config.Filtered, file.Name()+".tok.stop")
-			goirs.TokenizerWriterIterator(file, tokenizedd)
+
+			
+			goirs.TokenizerWriterIterator(source, tokenized, writeTokenized)
 		}
 	}
 

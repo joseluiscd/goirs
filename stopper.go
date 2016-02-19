@@ -20,7 +20,7 @@ func stopper(stop Stopper, input <-chan string, output chan string) {
 
 //StopperIterator devuelve aquellos tokens que no están en el stopper
 func (tokens StringIterator) StopperIterator(stop Stopper) StringIterator {
-    stopped := make(chan string, 128)
+    stopped := make(chan string, BUFFERSIZE)
 
     go stopper(stop, tokens, stopped)
 
@@ -59,11 +59,10 @@ func (tokens StringIterator) StopperWriterIterator(dostop bool, file string, wri
             if err != nil {
                 panic(err)
             }
-            out := make(chan string, 128)
+            out := make(chan string, BUFFERSIZE)
     		in := tokens.StopperIterator(stop)
 
     		dest, err := os.Create(file)
-    		defer dest.Close()
 
     		if err != nil {
     			panic(err)

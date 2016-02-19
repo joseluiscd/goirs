@@ -20,6 +20,11 @@ func isMn (r rune) bool {
     return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
+//Viva la programación funcional!!
+func isNull(r rune) bool{
+	return r==0
+}
+
 //CleanToken elimina caracteres extraños de un token y normaliza los acentos
 func CleanToken(oldToken string) string {
 	oldToken = strings.Replace(oldToken, "ñ", "*", -1)
@@ -36,7 +41,7 @@ func CleanToken(oldToken string) string {
 	//Fin del código de StackOverflow
 	//-----------------------------------------------------
 
-	return strings.Replace(strings.ToLower(string(b)), "*", "ñ", -1)
+	return strings.TrimFunc(strings.Replace(strings.ToLower(string(b)), "*", "ñ", -1), isNull)
 }
 
 func cleanToken(in <-chan string, out chan string) {
@@ -74,9 +79,9 @@ func TokenizerIterator(input io.Reader) <-chan string {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 
-	uno := make(chan string, 128)
-    dos := make(chan string, 128)
-    tres := make(chan string, 128)
+	uno := make(chan string, BUFFERSIZE)
+    dos := make(chan string, BUFFERSIZE)
+    tres := make(chan string, BUFFERSIZE)
 
 	go tokenizeSpaces(scanner, uno)
     go tokenizeWords(uno, dos)
@@ -85,23 +90,25 @@ func TokenizerIterator(input io.Reader) <-chan string {
 	return tres
 }
 
-func tokenWrite(file io.Writer, in <-chan string, out chan string) {
+func tokenWrite(file *os.File, in <-chan string, out chan string) {
 	defer close(out)
+	defer file.Close()
+
 	for token := range in{
-		io.WriteString(file, token)
-		io.WriteString(file ,"\n")
 		out <- token
+		file.WriteString(token)
+		file.WriteString("\n")
 	}
 }
+
 //TokenizerWriterIterator Igual que TokenizerIterator, pero que escribe los
 //tokens en el fichero especificado si write es true
 func TokenizerWriterIterator(input io.Reader, file string, write bool) StringIterator {
 	if write {
-		out := make(chan string, 128)
+		out := make(chan string, BUFFERSIZE)
 		in := TokenizerIterator(input)
 
 		dest, err := os.Create(file)
-		defer dest.Close()
 
 		if err != nil {
 			panic(err)

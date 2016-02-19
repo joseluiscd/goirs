@@ -31,3 +31,9 @@ func (i StringIterator) Filter(f func(string) bool) StringIterator {
     go i.filter(f, k)
     return k
 }
+
+//Evaluate cierra la cadena y evalua todo lo del iterador
+//Básicamente, lo saca todo para forzar las operaciones intermedias
+func (i StringIterator) Evaluate() {
+    for _ = range i {}
+}

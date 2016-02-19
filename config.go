@@ -7,10 +7,12 @@ import (
 
 //Configuration es la estructura en la que guardamos la configuración
 type Configuration struct {
-	Corpus   string
-	Filtered string
-	Stopped  string
-	Stats string "."
+	Corpus      string
+	Filtered    string
+	Stopped     string
+	StopperFile string
+	Stats       string
+	Index       string
 }
 
 //LoadConfiguration carga un archivo de configuración
@@ -35,7 +37,7 @@ func LoadConfiguration(file string) (*Configuration, error) {
 func (cfg *Configuration) Save(file string) error {
 
 	content, err := json.Marshal(cfg)
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 

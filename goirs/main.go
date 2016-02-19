@@ -14,7 +14,7 @@ import (
 
 func dieOn(err error){
 	if err!=nil {
-		panic(err)
+		panic(err.Error())
 	}
 }
 
@@ -26,15 +26,15 @@ func main() {
 		writeTokenized = false
 		writeStopped = false
 
-		tokenize = true
 		stop = false
 
 		practice = 0
+		stopper goirs.Stopper
 	)
 
 	flag.BoolVar(&generateConfig, "genconfig", false, "Generar un fichero de configuración en el directorio actual")
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
-	flag.IntVar(&practice, "prac", 1, "Práctica que se quiere ejecutar")
+	flag.IntVar(&practice, "prac", 2, "Práctica que se quiere ejecutar")
 	flag.Parse()
 
 	//Generar configuración si es necesario
@@ -53,21 +53,44 @@ func main() {
 	dieOn(err)
 
 	//Prácticas a ejecutar
+	fmt.Printf("Ejecutando la práctica %d...\nSe va a utilizar: ", practice)
 	switch practice {
 	case 2:
+		fmt.Print("stopper, ")
 		stop = true
+
+		//Cargamos el stopper
+		var file *os.File
+		var err error
+
+		if config.StopperFile == "" {
+			file, err = os.Open(filepath.Join(config.Index, "stopper.txt"))
+			dieOn(err)
+		} else {
+			file, err = os.Open(config.StopperFile)
+			dieOn(err)
+		}
+
+
+		stopper = goirs.ReadStopper(file)
+		file.Close()
+
 		fallthrough
 	case 1:
-		tokenize = true
+		fmt.Println("filtrado y tokenizado")
 
 	}
+
+
 	//Decidir qué hacemos en función de la configuración
 	if config.Filtered != "" {
 		writeTokenized = true
+		fmt.Println("Vamos a escribir el tokenizado (si hay)")
 	}
 
 	if config.Stopped != "" {
 		writeStopped = true
+		fmt.Println("Vamos a escribir el stopper (si hay)")
 	}
 
 	//Leer ficheros del corpus y aplicarles las operaciones
@@ -89,12 +112,14 @@ func main() {
 			}*/
 			source := filepath.Join(config.Corpus, file.Name())
 
-			tokenized = filepath.Join(config.Filtered, file.Name()+".tok")
-			stopped = filepath.Join(config.Filtered, file.Name()+".tok.stop")
+			if writeTokenized {tokenized = filepath.Join(config.Filtered, file.Name()+".tok")}
+			if writeStopped {stopped = filepath.Join(config.Filtered, file.Name()+".tok.stop")}
 
 			parsed := goirs.FilterFile(source)
 
-			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized)
+			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized).
+				StopperWriterIterator(stop, stopped, writeStopped, stopper).
+				Evaluate()
 		}
 	}
 

@@ -20,9 +20,8 @@ func isMn (r rune) bool {
     return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
-//Viva la programación funcional!!
 func isNull(r rune) bool{
-	return r==0
+	return r==0 || r=='-'
 }
 
 //CleanToken elimina caracteres extraños de un token y normaliza los acentos

@@ -6,6 +6,7 @@ import (
 	"os"
 	"bufio"
 	"bytes"
+	"strings"
 )
 
 //Filter filtra el HTML de un documento proporcionado por input
@@ -52,7 +53,7 @@ func extractTitle(root *gosoup.Node) string {
 		return "No title"
 	}
 
-	return title.FirstChild.Data
+	return strings.TrimSpace(strings.Split(title.FirstChild.Data, "|")[0])
 }
 
 //Encontrar el meollo del asunto

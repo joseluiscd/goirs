@@ -11,6 +11,7 @@ type Configuration struct {
 	Filtered    string
 	Stopped     string
 	StopperFile string
+	Stemmed     string
 	Stats       string
 	Index       string
 }

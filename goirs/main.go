@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
 	"gitlab.com/joseluiscd/goirs"
@@ -133,31 +131,6 @@ func main() {
 				StemmerWriterIterator(stem, stemmed, writeStemmed).
 				Evaluate()
 		}
-	}
-
-}
-
-func tokenizeFile(path string, dest string) {
-	ntoks := 0
-	file, err := os.Open(path)
-	dieOn(err)
-	defer file.Close()
-
-	out, err := os.OpenFile(dest, os.O_CREATE|os.O_WRONLY, 0600)
-	dieOn(err)
-	defer out.Close()
-
-	readfile := bufio.NewReader(file)
-	buffer := bytes.NewBuffer(nil)
-
-	goirs.Filter(readfile, buffer)
-
-	it := goirs.TokenizerIterator(buffer)
-
-	for x := range it {
-		ntoks++
-		out.WriteString(x)
-		out.WriteString("\n")
 	}
 
 }

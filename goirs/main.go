@@ -120,10 +120,10 @@ func main() {
 				tokenized = filepath.Join(config.Filtered, file.Name()+".tok")
 			}
 			if writeStopped {
-				stopped = filepath.Join(config.Filtered, file.Name()+".tok.stop")
+				stopped = filepath.Join(config.Stopped, file.Name()+".tok.stop")
 			}
 			if writeStemmed {
-				stemmed = filepath.Join(config.Filtered, file.Name()+".tok.stop.stem")
+				stemmed = filepath.Join(config.Stemmed, file.Name()+".tok.stop.stem")
 			}
 
 			parsed := goirs.FilterFile(source)

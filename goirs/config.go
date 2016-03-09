@@ -1,4 +1,4 @@
-package goirs
+package main
 
 import (
 	"encoding/json"

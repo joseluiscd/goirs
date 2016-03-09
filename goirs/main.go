@@ -24,22 +24,25 @@ func main() {
 		writeTokenized = false
 		writeStopped   = false
 		writeStemmed   = false
+		writeIndex     = false
 
 		stop = false
 		stem = false
+		freq = false
 
-		practice = 0
-		stopper  goirs.Stopper
+		practice  = 0
+		stopper   goirs.Stopper
+		freqindex *goirs.FrequencyIndex
 	)
 
 	flag.BoolVar(&generateConfig, "genconfig", false, "Generar un fichero de configuración en el directorio actual")
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
-	flag.IntVar(&practice, "prac", 3, "Práctica que se quiere ejecutar")
+	flag.IntVar(&practice, "prac", 4, "Práctica que se quiere ejecutar")
 	flag.Parse()
 
 	//Generar configuración si es necesario
 	if generateConfig {
-		cfg := new(goirs.Configuration)
+		cfg := new(Configuration)
 		err := cfg.Save("./conf.data")
 		if err != nil {
 			fmt.Println("Fallo al crear la configuración")
@@ -49,12 +52,17 @@ func main() {
 	}
 
 	//Cargar configuración
-	config, err := goirs.LoadConfiguration(configLoc)
+	config, err := LoadConfiguration(configLoc)
 	dieOn(err)
 
 	//Prácticas a ejecutar
 	fmt.Printf("Ejecutando la práctica %d...\nSe va a utilizar: ", practice)
 	switch practice {
+	case 4:
+		fmt.Print("creación de índice de frecuencias, ")
+		freq = true
+		freqindex = goirs.NewFrequencyIndex()
+		fallthrough
 	case 3:
 		fmt.Print("stemmer, ")
 		stem = true
@@ -100,6 +108,11 @@ func main() {
 		fmt.Println("Vamos a escribir el stemmer (si hay)")
 	}
 
+	if config.Index != "" {
+		writeIndex = true
+		fmt.Println("Vamos a escribir el índice de frecuencias (si hay)")
+	}
+
 	//Leer ficheros del corpus y aplicarles las operaciones
 	dir, err := ioutil.ReadDir(config.Corpus)
 	dieOn(err)
@@ -129,8 +142,13 @@ func main() {
 			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized).
 				StopperWriterIterator(stop, stopped, writeStopped, stopper).
 				StemmerWriterIterator(stem, stemmed, writeStemmed).
-				Evaluate()
+				AddToFrequencyIndex(freq, file.Name(), freqindex)
 		}
+	}
+
+	if writeIndex {
+		path := filepath.Join(config.Index, "index.freq")
+		freqindex.Serialize(path)
 	}
 
 }

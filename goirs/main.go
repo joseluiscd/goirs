@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 func dieOn(err error) {
@@ -117,14 +118,16 @@ func main() {
 	dir, err := ioutil.ReadDir(config.Corpus)
 	dieOn(err)
 
-	var tokenized string
-	var stopped string
-	var stemmed string
+	var wg sync.WaitGroup
 
-	for _, file := range dir {
-		if file.Mode().IsRegular() && strings.HasSuffix(file.Name(), ".html") {
-			//Tenemos un fichero candidato
+	worker := func(files <-chan os.FileInfo){
+		var tokenized string
+		var stopped string
+		var stemmed string
 
+		defer wg.Done()
+
+		for file := range files{
 			source := filepath.Join(config.Corpus, file.Name())
 
 			if writeTokenized {
@@ -144,7 +147,24 @@ func main() {
 				StemmerWriterIterator(stem, stemmed, writeStemmed).
 				AddToFrequencyIndex(freq, file.Name(), freqindex)
 		}
+
 	}
+
+	files := make(chan os.FileInfo)
+	for i:=0; i<8; i++ {
+		wg.Add(1)
+		go worker(files)
+	}
+
+	for _, file := range dir {
+		if file.Mode().IsRegular() && strings.HasSuffix(file.Name(), ".html") {
+			//Tenemos un fichero candidato
+			files <-file
+		}
+
+	}
+	close(files)
+	wg.Wait()
 
 	if writeIndex {
 		path := filepath.Join(config.Index, "index.freq")

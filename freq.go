@@ -4,6 +4,7 @@ import(
 	"encoding/json"
 	"io/ioutil"
 	"strconv"
+	"sync"
 )
 
 type FrequencyIndex struct {
@@ -15,6 +16,7 @@ type FrequencyIndex struct {
 	//tokens["documento"][token] = veces que aparece token en "documento"
 	Tokens map[string]map[int]int
 
+	mutex sync.Mutex
 }
 
 func (ind *FrequencyIndex) AddToken(token string) int {
@@ -28,6 +30,9 @@ func (ind *FrequencyIndex) AddToken(token string) int {
 }
 
 func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
+	ind.mutex.Lock()
+	defer ind.mutex.Unlock()
+
 	idToken := ind.AddToken(token)
 
 	docInd := ind.Tokens[doc]
@@ -45,7 +50,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 func NewFrequencyIndex() *FrequencyIndex {
 	a := make(map[string]int)
 	b := make(map[string]map[int]int)
-	return &FrequencyIndex{a, 1, b}
+	return &FrequencyIndex{a, 1, b, sync.Mutex{}}
 }
 
 func (ind* FrequencyIndex) Serialize(file string) {

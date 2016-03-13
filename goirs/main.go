@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"runtime"
 )
 
 func dieOn(err error) {
@@ -134,10 +135,10 @@ func main() {
 				tokenized = filepath.Join(config.Filtered, file.Name()+".tok")
 			}
 			if writeStopped {
-				stopped = filepath.Join(config.Stopped, file.Name()+".tok.stop")
+				stopped = filepath.Join(config.Stopped, file.Name()+".stop")
 			}
 			if writeStemmed {
-				stemmed = filepath.Join(config.Stemmed, file.Name()+".tok.stop.stem")
+				stemmed = filepath.Join(config.Stemmed, file.Name()+".stem")
 			}
 
 			parsed := goirs.FilterFile(source)
@@ -151,7 +152,7 @@ func main() {
 	}
 
 	files := make(chan os.FileInfo)
-	for i:=0; i<8; i++ {
+	for i:=0; i<runtime.NumCPU(); i++ {
 		wg.Add(1)
 		go worker(files)
 	}

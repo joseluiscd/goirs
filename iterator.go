@@ -5,7 +5,7 @@ type StringIterator <-chan string
 
 const(
     //BUFFERSIZE es el tamaño del buffer de los canales
-    BUFFERSIZE = 64
+    BUFFERSIZE = 16
 )
 //Next devuelve el siguiente valor o la cadena vacía en caso de llegar al final
 func (i StringIterator) Next() string {

@@ -1,29 +1,47 @@
 package goirs
 
 import(
-	"encoding/json"
-	"io/ioutil"
-	"strconv"
 	"sync"
+	"encoding/gob"
+	"os"
 )
 
+//FrequencyIndex es donde se almacenan todos los datos relativos al índice
+//de frecuencias
 type FrequencyIndex struct {
-	//tokenIds guarda el ID de cada token (en forma de string)
+	//TokenIds guarda el ID de cada token (en forma de string)
 	TokenIds map[string]int
-	//nextId guarda el siguiente número de token que se va a utilizar
-	NextId int
-	//tokens es el índice invertido:
-	//tokens["documento"][token] = veces que aparece token en "documento"
-	Tokens map[string]map[int]int
+
+	DocIds map[string]int
+	//NextToken guarda el siguiente número de token que se va a utilizar
+	NextToken int
+
+	//NextDoc guarda el siguiente número de documento
+	NextDoc int
+
+	//Tokens es el índice invertido:
+	//tokens[token][documento] = veces que aparece token en "documento"
+	//En caso de que no esté, siempre se devolverá 0
+	Tokens map[int]map[int]int
 
 	mutex sync.Mutex
 }
 
 func (ind *FrequencyIndex) AddToken(token string) int {
 	if a := ind.TokenIds[token]; a == 0 {
-		ind.TokenIds[token] = ind.NextId
-		ind.NextId++
-		return ind.NextId-1
+		ind.TokenIds[token] = ind.NextToken
+		ind.NextToken++
+		return ind.NextToken-1
+	} else {
+		return a
+	}
+}
+
+func (ind *FrequencyIndex) AddDocument(doc string) int {
+	if a := ind.DocIds[doc]; a == 0 {
+		ind.DocIds[doc] = ind.NextDoc
+		ind.NextDoc++
+		return ind.NextDoc-1
 	} else {
 		return a
 	}
@@ -34,47 +52,34 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	defer ind.mutex.Unlock()
 
 	idToken := ind.AddToken(token)
+	idDoc := ind.AddDocument(doc)
 
-	docInd := ind.Tokens[doc]
+	docInd := ind.Tokens[idToken]
 
 	if docInd == nil {
 		docInd = make(map[int]int)
-		docInd[idToken] = 0
+		docInd[idDoc] = 1
+	} else {
+		docInd[idDoc]++
 	}
 
-	docInd[idToken]++
-	ind.Tokens[doc] = docInd
+	ind.Tokens[idDoc] = docInd
 
 }
 
 func NewFrequencyIndex() *FrequencyIndex {
-	a := make(map[string]int)
-	b := make(map[string]map[int]int)
-	return &FrequencyIndex{a, 1, b, sync.Mutex{}}
+	return &FrequencyIndex{make(map[string]int), make(map[string]int), 1, 1, make(map[int]map[int]int), sync.Mutex{}}
 }
 
 func (ind* FrequencyIndex) Serialize(file string) {
-	data, err := json.Marshal(ind.TokenIds)
-	if err != nil {
-		panic(err)
-	}
-	ioutil.WriteFile(file+".tokens", data, 0600)
-
-	tokens := make(map[string]map[string]int)
-	for x, y := range ind.Tokens {
-		tokens[x] = make(map[string]int)
-		for z, w := range y {
-			tokens[x][strconv.Itoa(z)] = w
-		}
-	}
-
-	data, err = json.Marshal(tokens)
+	stream, err := os.Create(file)
+	defer stream.Close()
 	if err != nil {
 		panic(err)
 	}
 
-	ioutil.WriteFile(file+".freqs", data, 0600)
-
+	encoder := gob.NewEncoder(stream)
+	encoder.Encode(ind)
 }
 
 func (tokens StringIterator) IterateFrequencyIndex(document string, index *FrequencyIndex) *FrequencyIndex{

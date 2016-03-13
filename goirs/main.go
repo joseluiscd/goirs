@@ -168,7 +168,7 @@ func main() {
 	wg.Wait()
 
 	if writeIndex {
-		path := filepath.Join(config.Index, "index.freq")
+		path := filepath.Join(config.Index, "freq.index")
 		freqindex.Serialize(path)
 	}
 

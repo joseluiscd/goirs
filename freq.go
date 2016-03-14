@@ -23,10 +23,23 @@ type FrequencyIndex struct {
 	//NextDoc guarda el siguiente número de documento
 	NextDoc int
 
-	//Tokens es el índice invertido:
+	//TokensCount es el índice invertido:
 	//tokens[token][documento] = veces que aparece token en "documento"
+	//En la segunda vuelta esto se divide entre el número máximo de tokens de cada documento
 	//En caso de que no esté, siempre se devolverá 0
-	Tokens map[int]map[int]int
+	//Guardamos esta estructura en caso de que aparezcan nuevos documentos
+	//en la colección, para no tener que reconstruirlo todo desde cero.
+	TokensCount map[int]map[int]float64
+
+	//Número de veces que aparece el token que más veces aparece en un documento
+	MaxTokensDoc map[int]int
+
+	//IDF
+	Idfi map[int]int
+
+	//Pesos
+	W map[int]map[int]float64
+
 
 	mutex sync.Mutex
 }
@@ -60,7 +73,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	idToken := ind.AddToken(token)
 	idDoc := ind.AddDocument(doc)
 
-	docInd := ind.Tokens[idToken]
+	docInd := ind.TokensCount[idToken]
 
 	if docInd == nil {
 		docInd = make(map[int]int)
@@ -69,7 +82,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 		docInd[idDoc]++
 	}
 
-	ind.Tokens[idDoc] = docInd
+	ind.TokensCount[idDoc] = docInd
 
 }
 
@@ -81,7 +94,10 @@ func NewFrequencyIndex() *FrequencyIndex {
 		make(map[int]string),
 		1,
 		1,
-		make(map[int]map[int]int),
+		make(map[int]map[int]float64),
+		make(map[int]int),
+		make(map[int]int),
+		make(map[int]map[int]float64),
 		sync.Mutex{},
 	}
 }

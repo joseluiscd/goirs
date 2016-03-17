@@ -35,7 +35,7 @@ type FrequencyIndex struct {
 	MaxTokensDoc map[int]int
 
 	//IDF
-	Idfi map[int]int
+	Idfi map[int]float64
 
 	//Pesos
 	W map[int]map[int]float64
@@ -76,7 +76,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	docInd := ind.TokensCount[idToken]
 
 	if docInd == nil {
-		docInd = make(map[int]int)
+		docInd = make(map[int]float64)
 		docInd[idDoc] = 1
 	} else {
 		docInd[idDoc]++
@@ -96,7 +96,7 @@ func NewFrequencyIndex() *FrequencyIndex {
 		1,
 		make(map[int]map[int]float64),
 		make(map[int]int),
-		make(map[int]int),
+		make(map[int]float64),
 		make(map[int]map[int]float64),
 		sync.Mutex{},
 	}

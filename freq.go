@@ -43,28 +43,33 @@ type FrequencyIndex struct {
 	mutex sync.Mutex
 }
 
+//AddToken añade un token al índice de frecuencias
 func (ind *FrequencyIndex) AddToken(token string) int {
-	if a := ind.TokenIds[token]; a == 0 {
+	a := ind.TokenIds[token]
+	if a == 0 {
 		ind.TokenIds[token] = ind.NextToken
 		ind.TokenNames[ind.NextToken] = token
 		ind.NextToken++
 		return ind.NextToken - 1
-	} else {
-		return a
 	}
+	return a
 }
 
+//AddDocument añade (parcialmente) un documento al índice de frecuencias. El cómputo
+//de tokens y demás debe realizarse por separado
 func (ind *FrequencyIndex) AddDocument(doc string) int {
-	if a := ind.DocIds[doc]; a == 0 {
+	a := ind.DocIds[doc]
+	if a == 0 {
 		ind.DocIds[doc] = ind.NextDoc
 		ind.DocNames[ind.NextDoc] = doc
 		ind.NextDoc++
 		return ind.NextDoc - 1
-	} else {
-		return a
 	}
+
+	return a
 }
 
+//AddAndCountToken añade el token (si no está) y lo cuenta al documento especificado
 func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	ind.mutex.Lock()
 	defer ind.mutex.Unlock()
@@ -85,6 +90,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 
 }
 
+//NewFrequencyIndex es el constructor del índice de frecuencias
 func NewFrequencyIndex() *FrequencyIndex {
 	return &FrequencyIndex{
 		make(map[string]int),
@@ -101,6 +107,7 @@ func NewFrequencyIndex() *FrequencyIndex {
 	}
 }
 
+//Serialize serializa el índice de frecuencias a un archivo
 func (ind *FrequencyIndex) Serialize(file string) {
 	stream, err := os.Create(file)
 	defer stream.Close()
@@ -112,6 +119,7 @@ func (ind *FrequencyIndex) Serialize(file string) {
 	encoder.Encode(ind)
 }
 
+//DeserializeFrequencyIndex carga un índice de frecuencias desde un fichero
 func DeserializeFrequencyIndex(file string) *FrequencyIndex {
 	stream, err := os.Open(file)
 	defer stream.Close()
@@ -127,6 +135,8 @@ func DeserializeFrequencyIndex(file string) *FrequencyIndex {
 	return toRet
 }
 
+//IterateFrequencyIndex itera sobre un canal de tokens, añadiéndolos al índice de frecuencias en el documento especificado.
+//En este caso, el canal de tokens representa un documento
 func (tokens StringIterator) IterateFrequencyIndex(document string, index *FrequencyIndex) *FrequencyIndex {
 	for x := range tokens {
 		index.AddAndCountToken(document, x)
@@ -134,6 +144,7 @@ func (tokens StringIterator) IterateFrequencyIndex(document string, index *Frequ
 	return index
 }
 
+//AddToFrequencyIndex es el iterador de alto nivel, preparado para el main
 func (tokens StringIterator) AddToFrequencyIndex(doindex bool, document string, index *FrequencyIndex) *FrequencyIndex {
 	if doindex {
 		return tokens.IterateFrequencyIndex(document, index)

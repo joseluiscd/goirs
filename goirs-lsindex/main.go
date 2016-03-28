@@ -1,33 +1,33 @@
 package main
 
-import(
-    "gitlab.com/joseluiscd/goirs"
-    "flag"
-    "fmt"
+import (
+	"flag"
+	"fmt"
+
+	"gitlab.com/joseluiscd/goirs"
 )
 
 func main() {
-    var file string
+	var file string
 
-    flag.StringVar(&file, "f", "freq.index", "Index file to show")
-    flag.Parse()
+	flag.StringVar(&file, "f", "freq.index", "Index file to show")
+	flag.Parse()
 
-    findex := goirs.DeserializeFrequencyIndex(file)
-    if findex == nil {
-        panic("UEUEUEU")
-    }
+	findex := goirs.DeserializeFrequencyIndex(file)
+	if findex == nil {
+		panic("UEUEUEU")
+	}
 
-    var ii int
-    for _ = range findex.TokenIds{
-        ii++
-    }
-    fmt.Println(ii, "tokens únicos")
+	var ii int
+	for _ = range findex.TokenIds {
+		ii++
+	}
+	fmt.Println(ii, "tokens únicos")
 
-    var id int
-    for _ = range findex.DocIds{
-        id++
-    }
-    fmt.Println(id, "documentos")
-
+	var id int
+	for _ = range findex.DocIds {
+		id++
+	}
+	fmt.Println(id, "documentos")
 
 }

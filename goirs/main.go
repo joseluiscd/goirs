@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gitlab.com/joseluiscd/goirs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
-	"runtime"
+
+	"gitlab.com/joseluiscd/goirs"
 )
 
 func dieOn(err error) {
@@ -75,7 +76,6 @@ func main() {
 
 		//Cargamos el stopper
 		var file *os.File
-		var err error
 
 		if config.StopperFile == "" {
 			file, err = os.Open(filepath.Join(config.Index, "stopper.txt"))
@@ -121,14 +121,14 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	worker := func(files <-chan os.FileInfo){
+	worker := func(files <-chan os.FileInfo) {
 		var tokenized string
 		var stopped string
 		var stemmed string
 
 		defer wg.Done()
 
-		for file := range files{
+		for file := range files {
 			source := filepath.Join(config.Corpus, file.Name())
 
 			if writeTokenized {
@@ -152,7 +152,7 @@ func main() {
 	}
 
 	files := make(chan os.FileInfo)
-	for i:=0; i<runtime.NumCPU(); i++ {
+	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
 		go worker(files)
 	}
@@ -160,7 +160,7 @@ func main() {
 	for _, file := range dir {
 		if file.Mode().IsRegular() && strings.HasSuffix(file.Name(), ".html") {
 			//Tenemos un fichero candidato
-			files <-file
+			files <- file
 		}
 
 	}
@@ -168,7 +168,7 @@ func main() {
 	wg.Wait()
 
 	freqindex.ComputeAll()
-	
+
 	if writeIndex {
 		path := filepath.Join(config.Index, "freq.index")
 		freqindex.Serialize(path)

@@ -1,10 +1,11 @@
 package goirs
 
-import(
+import (
 	"math"
 )
+
 //ComputeMaxTokensDoc calcula el campo de la estructura del mismo nombre.
-func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex{
+func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex {
 	for _, token := range ind.TokensCount {
 		for doc, freq := range token {
 			if freq > float64(ind.MaxTokensDoc[doc]) {
@@ -20,7 +21,7 @@ func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex{
 func (ind *FrequencyIndex) NormalizeTf() *FrequencyIndex {
 	for tokenid, token := range ind.TokensCount {
 		for doc, freq := range token {
-			ind.TokensCount[tokenid][doc]= freq/float64(ind.MaxTokensDoc[doc])
+			ind.TokensCount[tokenid][doc] = freq / float64(ind.MaxTokensDoc[doc])
 		}
 	}
 	return ind
@@ -29,7 +30,7 @@ func (ind *FrequencyIndex) NormalizeTf() *FrequencyIndex {
 //ComputeIdf calcula el IDF de cada token
 func (ind *FrequencyIndex) ComputeIdf() *FrequencyIndex {
 	for token, docs := range ind.TokensCount {
-		ind.Idfi[token] = math.Log2(float64(ind.NextDoc-1)/float64(len(docs)))
+		ind.Idfi[token] = math.Log2(float64(ind.NextDoc-1) / float64(len(docs)))
 	}
 	return ind
 }
@@ -50,7 +51,7 @@ func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 }
 
 //NormalizeWeights normaliza los pesos
-func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex{
+func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 	for token, docs := range ind.W {
 		sum := float64(0)
 		for _, w := range docs {
@@ -70,6 +71,6 @@ func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex{
 // - Tf normalizado (contando la frecuencia máxima de un documento)
 // - Idf de cada token
 // - Peso normalizado
-func (ind *FrequencyIndex) ComputeAll() *FrequencyIndex{
+func (ind *FrequencyIndex) ComputeAll() *FrequencyIndex {
 	return ind.ComputeMaxTokensDoc().NormalizeTf().ComputeIdf().ComputeWeights().NormalizeWeights()
 }

@@ -3,25 +3,25 @@ package goirs
 import (
 	"bufio"
 	"io"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
+	"os"
 	"regexp"
 	"strings"
-    "unicode"
-	"os"
-)
+	"unicode"
 
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
+)
 
 var (
 	notallowed = regexp.MustCompile("[^\\p{L}[:digit:]_-]+")
 )
 
-func isMn (r rune) bool {
-    return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
-func isNull(r rune) bool{
-	return r==0 || r=='-'
+func isNull(r rune) bool {
+	return r == 0 || r == '-'
 }
 
 //CleanToken elimina caracteres extraños de un token y normaliza los acentos
@@ -44,29 +44,29 @@ func CleanToken(oldToken string) string {
 }
 
 func cleanToken(in <-chan string, out chan string) {
-    defer close(out)
+	defer close(out)
 
 	for currstr := range in {
-		if token := CleanToken(currstr); len(token)>0{
-			out<-token
+		if token := CleanToken(currstr); len(token) > 0 {
+			out <- token
 		}
 	}
 }
 
 func tokenizeWords(in <-chan string, out chan string) {
-    defer close(out)
+	defer close(out)
 	for currstr := range in {
 		currstr = notallowed.ReplaceAllString(currstr, " ")
-        for _,x := range(strings.Split(currstr, " ")){
-            if len(x)>0{
-                out <- x
-            }
-        }
+		for _, x := range strings.Split(currstr, " ") {
+			if len(x) > 0 {
+				out <- x
+			}
+		}
 	}
 }
 
 func tokenizeSpaces(in *bufio.Scanner, out chan string) {
-    defer close(out)
+	defer close(out)
 	for in.Scan() {
 		currstr := in.Text()
 		out <- currstr
@@ -79,12 +79,12 @@ func TokenizerIterator(input io.Reader) <-chan string {
 	scanner.Split(bufio.ScanWords)
 
 	uno := make(chan string, BUFFERSIZE)
-    dos := make(chan string, BUFFERSIZE)
-    tres := make(chan string, BUFFERSIZE)
+	dos := make(chan string, BUFFERSIZE)
+	tres := make(chan string, BUFFERSIZE)
 
 	go tokenizeSpaces(scanner, uno)
-    go tokenizeWords(uno, dos)
-    go cleanToken(dos, tres)
+	go tokenizeWords(uno, dos)
+	go cleanToken(dos, tres)
 
 	return tres
 }
@@ -93,7 +93,7 @@ func tokenWrite(file *os.File, in <-chan string, out chan string) {
 	defer close(out)
 	defer file.Close()
 
-	for token := range in{
+	for token := range in {
 		out <- token
 		file.WriteString(token)
 		file.WriteString("\n")

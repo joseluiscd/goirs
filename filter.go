@@ -1,12 +1,13 @@
 package goirs
 
 import (
-	"io"
-	"github.com/joffrey-bion/gosoup"
-	"os"
 	"bufio"
 	"bytes"
+	"io"
+	"os"
 	"strings"
+
+	"github.com/joffrey-bion/gosoup"
 )
 
 //Filter filtra el HTML de un documento proporcionado por input
@@ -29,7 +30,7 @@ func Filter(input io.Reader, output io.Writer) error {
 //FilterFile abre el archivo especificado y lo filtra
 func FilterFile(input string) io.Reader {
 	file, err := os.Open(input)
-	if err!=nil{
+	if err != nil {
 		panic(err)
 	}
 	defer file.Close()

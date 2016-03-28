@@ -1,9 +1,9 @@
 package goirs
 
-import(
-	"sync"
+import (
 	"encoding/gob"
 	"os"
+	"sync"
 )
 
 //FrequencyIndex es donde se almacenan todos los datos relativos al índice
@@ -16,7 +16,7 @@ type FrequencyIndex struct {
 	DocIds map[string]int
 
 	TokenNames map[int]string
-	DocNames map[int]string
+	DocNames   map[int]string
 	//NextToken guarda el siguiente número de token que se va a utilizar
 	NextToken int
 
@@ -40,7 +40,6 @@ type FrequencyIndex struct {
 	//Pesos
 	W map[int]map[int]float64
 
-
 	mutex sync.Mutex
 }
 
@@ -49,7 +48,7 @@ func (ind *FrequencyIndex) AddToken(token string) int {
 		ind.TokenIds[token] = ind.NextToken
 		ind.TokenNames[ind.NextToken] = token
 		ind.NextToken++
-		return ind.NextToken-1
+		return ind.NextToken - 1
 	} else {
 		return a
 	}
@@ -60,7 +59,7 @@ func (ind *FrequencyIndex) AddDocument(doc string) int {
 		ind.DocIds[doc] = ind.NextDoc
 		ind.DocNames[ind.NextDoc] = doc
 		ind.NextDoc++
-		return ind.NextDoc-1
+		return ind.NextDoc - 1
 	} else {
 		return a
 	}
@@ -102,7 +101,7 @@ func NewFrequencyIndex() *FrequencyIndex {
 	}
 }
 
-func (ind* FrequencyIndex) Serialize(file string) {
+func (ind *FrequencyIndex) Serialize(file string) {
 	stream, err := os.Create(file)
 	defer stream.Close()
 	if err != nil {
@@ -128,14 +127,14 @@ func DeserializeFrequencyIndex(file string) *FrequencyIndex {
 	return toRet
 }
 
-func (tokens StringIterator) IterateFrequencyIndex(document string, index *FrequencyIndex) *FrequencyIndex{
+func (tokens StringIterator) IterateFrequencyIndex(document string, index *FrequencyIndex) *FrequencyIndex {
 	for x := range tokens {
 		index.AddAndCountToken(document, x)
 	}
 	return index
 }
 
-func (tokens StringIterator) AddToFrequencyIndex(doindex bool, document string, index *FrequencyIndex) *FrequencyIndex{
+func (tokens StringIterator) AddToFrequencyIndex(doindex bool, document string, index *FrequencyIndex) *FrequencyIndex {
 	if doindex {
 		return tokens.IterateFrequencyIndex(document, index)
 	}

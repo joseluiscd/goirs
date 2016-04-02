@@ -74,7 +74,7 @@ func tokenizeSpaces(in *bufio.Scanner, out chan string) {
 }
 
 //TokenizerIterator devuelve un canal que suelta tokens...
-func TokenizerIterator(input io.Reader) <-chan string {
+func TokenizerIterator(input io.Reader) StringIterator {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(bufio.ScanWords)
 

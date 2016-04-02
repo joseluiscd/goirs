@@ -4,7 +4,17 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+
+	"gitlab.com/joseluiscd/goirs"
 )
+
+var (
+	stopper goirs.Stopper
+)
+
+func proccessQuery(query string) {
+	//tokens := goirs.TokenizerIterator(strings.NewReader(query)).StopperIterator(stopper)
+}
 
 func main() {
 	var a []Topic

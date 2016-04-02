@@ -38,7 +38,7 @@ type FrequencyIndex struct {
 	Idfi map[int]float64
 
 	//Pesos
-	W map[int]map[int]float64
+	Weight map[int]map[int]float64
 
 	mutex sync.Mutex
 }

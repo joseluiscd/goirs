@@ -38,13 +38,13 @@ func (ind *FrequencyIndex) ComputeIdf() *FrequencyIndex {
 //ComputeWeights calcula el TF*IDF
 func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 	for token, docs := range ind.TokensCount {
-		if ind.W[token] == nil {
-			ind.W[token] = make(map[int]float64)
+		if ind.Weight[token] == nil {
+			ind.Weight[token] = make(map[int]float64)
 		}
 
 		for doc, tf := range docs {
 			//TF * IDF
-			ind.W[token][doc] = tf * ind.Idfi[token]
+			ind.Weight[token][doc] = tf * ind.Idfi[token]
 		}
 	}
 	return ind
@@ -52,7 +52,7 @@ func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 
 //NormalizeWeights normaliza los pesos
 func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
-	for token, docs := range ind.W {
+	for token, docs := range ind.Weight {
 		sum := float64(0)
 		for _, w := range docs {
 			sum += w * w
@@ -61,7 +61,7 @@ func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 		n := math.Sqrt(sum)
 
 		for doc, w := range docs {
-			ind.W[token][doc] = w / n
+			ind.Weight[token][doc] = w / n
 		}
 	}
 	return ind

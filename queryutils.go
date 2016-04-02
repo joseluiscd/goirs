@@ -1,16 +1,16 @@
 package goirs
 
-type Query struct {
-	Weight map[int]float64
+type Query map[int]float64
+
+type QueryResult struct {
+	Document   int
+	Similarity float64
 }
 
-func GetQuerySimilarity(ind FrequencyIndex) {
+type QueryResults []QueryResult
 
-}
+func GetQuerySimilarity(q Query, ind FrequencyIndex) {
 
-func (query Query) normalizeQuery(ind FrequencyIndex) Query {
-
-	return query
 }
 
 func (tokens StringIterator) ToQuery(ind FrequencyIndex) Query {
@@ -19,8 +19,8 @@ func (tokens StringIterator) ToQuery(ind FrequencyIndex) Query {
 	for token := range tokens {
 		id := ind.TokenIds[token]
 		if id != 0 {
-			q.Weight[id]++
+			q[id]++
 		}
 	}
-	return q.normalizeQuery(ind)
+	return q
 }

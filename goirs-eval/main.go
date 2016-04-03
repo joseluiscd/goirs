@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"gitlab.com/joseluiscd/goirs"
 )
@@ -17,24 +18,13 @@ func proccessQuery(query string) {
 }
 
 func main() {
-	var a []Topic
-
-	a = append(a, Topic{ID: 1, Desc: "Primooooooo"})
-	a = append(a, Topic{ID: 2, Desc: "eueueueueueueu"})
-
-	f, err := xml.MarshalIndent(Topics{Topics: a}, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(string(f))
-
 	data, err := ioutil.ReadFile("test.xml")
 	if err != nil {
 		panic(err)
 	}
 
 	read := Topics{}
+	index := goirs.DeserializeFrequencyIndex("freq.index")
 
 	err = xml.Unmarshal(data, &read)
 	if err != nil {
@@ -42,6 +32,8 @@ func main() {
 	}
 
 	for _, d := range read.Topics {
-		fmt.Println(d)
+		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)
+		fmt.Println(query)
+		fmt.Println(goirs.GetQuerySimilarities(query, index))
 	}
 }

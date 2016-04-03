@@ -12,14 +12,13 @@ type QueryResult map[int]float64
 //indexados en ind con respecto a la consulta q
 func GetQuerySimilarities(q Query, ind *FrequencyIndex) QueryResult {
 	res := make(QueryResult)
-	fmt.Println(ind.Weight)
-	for id, doc := range ind.Weight {
-		var score float64
-		for t, p := range q {
-			score += doc[t] * p
+	fmt.Println("Entrando")
+	for token, wq := range q {
+		fmt.Println("UEUE", token)
+		for doc, wd := range ind.Weight[token] {
+			fmt.Println("Documento", doc, "término", token, "peso", wd)
+			res[doc] += wq * wd
 		}
-
-		res[id] = score
 	}
 
 	return res

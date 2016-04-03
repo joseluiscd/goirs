@@ -86,7 +86,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 		docInd[idDoc]++
 	}
 
-	ind.TokensCount[idDoc] = docInd
+	ind.TokensCount[idToken] = docInd
 
 }
 

@@ -30,10 +30,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println(index.Weight[8])
 	for _, d := range read.Topics {
 		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)
-		fmt.Println(query)
-		fmt.Println(goirs.GetQuerySimilarities(query, index))
+		fmt.Println(query, "UEUEUEUEUEUEUE", goirs.GetQuerySimilarities(query, index))
 	}
 }

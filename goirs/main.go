@@ -167,7 +167,7 @@ func main() {
 	close(files)
 	wg.Wait()
 
-	freqindex.ComputeAll()
+	freqindex = freqindex.ComputeAll()
 
 	if writeIndex {
 		path := filepath.Join(config.Index, "freq.index")

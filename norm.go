@@ -1,6 +1,7 @@
 package goirs
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -13,7 +14,7 @@ func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex {
 			}
 		}
 	}
-
+	fmt.Println(ind.Weight)
 	return ind
 }
 
@@ -24,6 +25,8 @@ func (ind *FrequencyIndex) NormalizeTf() *FrequencyIndex {
 			ind.TokensCount[tokenid][doc] = freq / float64(ind.MaxTokensDoc[doc])
 		}
 	}
+	fmt.Println(ind.Weight)
+
 	return ind
 }
 
@@ -32,21 +35,27 @@ func (ind *FrequencyIndex) ComputeIdf() *FrequencyIndex {
 	for token, docs := range ind.TokensCount {
 		ind.Idfi[token] = math.Log2(float64(ind.NextDoc-1) / float64(len(docs)))
 	}
+	fmt.Println(ind.Weight)
+
 	return ind
 }
 
 //ComputeWeights calcula el TF*IDF
 func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 	for token, docs := range ind.TokensCount {
-		if ind.Weight[token] == nil {
-			ind.Weight[token] = make(map[int]float64)
+		a := ind.Weight[token]
+		if a == nil {
+			a = make(map[int]float64)
 		}
 
 		for doc, tf := range docs {
 			//TF * IDF
-			ind.Weight[token][doc] = tf * ind.Idfi[token]
+			a[doc] = tf * ind.Idfi[token]
 		}
+		ind.Weight[token] = a
 	}
+	fmt.Println(ind.Weight)
+
 	return ind
 }
 
@@ -54,6 +63,7 @@ func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 	for token, docs := range ind.Weight {
 		sum := float64(0)
+		a := ind.Weight[token]
 		for _, w := range docs {
 			sum += w * w
 		}
@@ -61,9 +71,13 @@ func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 		n := math.Sqrt(sum)
 
 		for doc, w := range docs {
-			ind.Weight[token][doc] = w / n
+			a[doc] = w / n
 		}
+
+		ind.Weight[token] = a
 	}
+	fmt.Println(ind.Weight)
+
 	return ind
 }
 

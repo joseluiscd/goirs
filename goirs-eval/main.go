@@ -33,7 +33,7 @@ func main() {
 	fmt.Println(index.Weight[8])
 	for _, d := range read.Topics {
 		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)
-		res := goirs.GetQuerySimilarities(query, index).GetNGreatest(5)
+		res := goirs.GetQuerySimilarities(query, index).GetNGreatest()
 
 		fmt.Println("Consulta:", d.Desc)
 		fmt.Println("Documentos relevantes:")

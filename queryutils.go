@@ -26,9 +26,8 @@ func GetQuerySimilarities(q Query, ind *FrequencyIndex) QueryResult {
 	res := make(QueryResult)
 	fmt.Println("Entrando")
 	for token, wq := range q {
-		fmt.Println("UEUE", token)
 		for doc, wd := range ind.Weight[token] {
-			fmt.Println("Documento", ind.DocNames[doc], "término", ind.TokenNames[token], "peso", wd)
+			//fmt.Println("Documento", ind.DocNames[doc], "término", ind.TokenNames[token], "peso", wd)
 			res[doc] += wq * wd
 		}
 	}
@@ -49,7 +48,7 @@ func (d DocumentWeights) Swap(i, j int) {
 
 //GetNGreatest elige los N mejores resultados de una consulta.
 //Utiliza el sort de todos los valores (ineficiente)
-func (qr QueryResult) GetNGreatest(n int) DocumentWeights {
+func (qr QueryResult) GetNGreatest() DocumentWeights {
 	res := make(DocumentWeights, len(qr))
 	i := 0
 	for doc, weight := range qr {
@@ -58,7 +57,7 @@ func (qr QueryResult) GetNGreatest(n int) DocumentWeights {
 	}
 
 	sort.Sort(sort.Reverse(res))
-	return res[0:n]
+	return res
 }
 
 //ToQuery transforma un iterador de cadenas en el formato requerido para una consulta
@@ -68,7 +67,7 @@ func (tokens StringIterator) ToQuery(ind *FrequencyIndex) Query {
 	for token := range tokens {
 		id := ind.TokenIds[token]
 		if id != 0 {
-			q[id]++
+			q[id] = 1
 		}
 	}
 	return q

@@ -1,6 +1,9 @@
 package goirs
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 //Query representa una consulta en forma de "vector"
 type Query map[int]float64
@@ -8,10 +11,14 @@ type Query map[int]float64
 //QueryResult es el resultado de realizar una consulta
 type QueryResult map[int]float64
 
+//DocumentWeight representa el valor de similitud de un documento con una consulta
 type DocumentWeight struct {
 	DocID  int
 	Weight float64
 }
+
+//DocumentWeights representa una lista de similitudes
+type DocumentWeights []DocumentWeight
 
 //GetQuerySimilarities calcula el valor de similitud para todos los documentos
 //indexados en ind con respecto a la consulta q
@@ -28,11 +35,30 @@ func GetQuerySimilarities(q Query, ind *FrequencyIndex) QueryResult {
 	return res
 }
 
-//GetNGreatest elige los N mejores resultados de una consulta.
-//Utiliza un algoritmo semi-quicksort
-func (qr QueryResult) GetNGreatest(n int) []DocumentWeight {
+func (d DocumentWeights) Len() int {
+	return len(d)
+}
 
-	return nil
+func (d DocumentWeights) Less(i, j int) bool {
+	return d[i].Weight < d[j].Weight
+}
+
+func (d DocumentWeights) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
+}
+
+//GetNGreatest elige los N mejores resultados de una consulta.
+//Utiliza el sort de todos los valores (ineficiente)
+func (qr QueryResult) GetNGreatest(n int) DocumentWeights {
+	res := make(DocumentWeights, len(qr))
+	i := 0
+	for doc, weight := range qr {
+		res[i] = DocumentWeight{doc, weight}
+		i++
+	}
+
+	sort.Sort(sort.Reverse(res))
+	return res[0:n]
 }
 
 //ToQuery transforma un iterador de cadenas en el formato requerido para una consulta

@@ -1,9 +1,6 @@
 package goirs
 
-import (
-	"fmt"
-	"math"
-)
+import "math"
 
 //ComputeMaxTokensDoc calcula el campo de la estructura del mismo nombre.
 func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex {
@@ -14,7 +11,6 @@ func (ind *FrequencyIndex) ComputeMaxTokensDoc() *FrequencyIndex {
 			}
 		}
 	}
-	fmt.Println(ind.Weight)
 	return ind
 }
 
@@ -25,8 +21,6 @@ func (ind *FrequencyIndex) NormalizeTf() *FrequencyIndex {
 			ind.TokensCount[tokenid][doc] = freq / float64(ind.MaxTokensDoc[doc])
 		}
 	}
-	fmt.Println(ind.Weight)
-
 	return ind
 }
 
@@ -35,8 +29,6 @@ func (ind *FrequencyIndex) ComputeIdf() *FrequencyIndex {
 	for token, docs := range ind.TokensCount {
 		ind.Idfi[token] = math.Log2(float64(ind.NextDoc-1) / float64(len(docs)))
 	}
-	fmt.Println(ind.Weight)
-
 	return ind
 }
 
@@ -54,29 +46,30 @@ func (ind *FrequencyIndex) ComputeWeights() *FrequencyIndex {
 		}
 		ind.Weight[token] = a
 	}
-	fmt.Println(ind.Weight)
-
 	return ind
 }
 
 //NormalizeWeights normaliza los pesos
 func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 	for token, docs := range ind.Weight {
-		sum := float64(0)
+		var sum float64
 		a := ind.Weight[token]
 		for _, w := range docs {
-			sum += w * w
+			sum += (w * w)
 		}
 
 		n := math.Sqrt(sum)
 
 		for doc, w := range docs {
-			a[doc] = w / n
+			if w == 0 || n == 0 {
+				a[doc] = 0
+			} else {
+				a[doc] = w / n
+			}
 		}
 
 		ind.Weight[token] = a
 	}
-	fmt.Println(ind.Weight)
 
 	return ind
 }

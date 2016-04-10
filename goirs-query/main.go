@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -18,14 +19,24 @@ func proccessQuery(query string) {
 }
 
 func main() {
+	var configLoc string
+
+	fmt.Println("Cargando configuración...")
+	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
+	flag.Parse()
+
+	config, err := goirs.LoadConfiguration(configLoc)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Cargando índice...")
-	index := goirs.DeserializeFrequencyIndex("freq.index")
-	fmt.Println("Índice cargado!")
+	index := goirs.DeserializeFrequencyIndex(config.IndexFile)
+
 	bio := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("GoIRS -> ")
+	fmt.Print("Bienvenido al shell interactivo de GoIRS!!\n\nGoIRS -> ")
 	for bio.Scan() {
-
 		query := goirs.TokenizerIterator(strings.NewReader(bio.Text())).StopperIterator(stopper).StemmerIterator().ToQuery(index)
 		res := goirs.GetQuerySimilarities(query, index).GetNGreatest()
 		fmt.Println("Documentos relevantes:")
@@ -34,7 +45,7 @@ func main() {
 			if i > 10 {
 				break
 			}
-			fmt.Println("Documento", index.DocNames[val.DocID], ", Ranking:", val.Weight)
+			fmt.Println("Documento", index.DocNames[val.DocID], "\tRanking:", val.Weight)
 			i++
 		}
 		if bio.Err() != nil {

@@ -1,9 +1,6 @@
 package goirs
 
-import (
-	"fmt"
-	"sort"
-)
+import "sort"
 
 //Query representa una consulta en forma de "vector"
 type Query map[int]float64
@@ -24,7 +21,6 @@ type DocumentWeights []DocumentWeight
 //indexados en ind con respecto a la consulta q
 func GetQuerySimilarities(q Query, ind *FrequencyIndex) QueryResult {
 	res := make(QueryResult)
-	fmt.Println("Entrando")
 	for token, wq := range q {
 		for doc, wd := range ind.Weight[token] {
 			//fmt.Println("Documento", ind.DocNames[doc], "término", ind.TokenNames[token], "peso", wd)

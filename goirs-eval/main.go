@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
+	"flag"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"gitlab.com/joseluiscd/goirs"
@@ -18,27 +19,49 @@ func proccessQuery(query string) {
 }
 
 func main() {
-	data, err := ioutil.ReadFile("test.xml")
+	var output [][]string
+	var configLoc string
+
+	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
+	flag.Parse()
+
+	config, err := goirs.LoadConfiguration(configLoc)
+	if err != nil {
+		panic(err)
+	}
+
+	data, err := ioutil.ReadFile(config.QueryFile)
 	if err != nil {
 		panic(err)
 	}
 
 	read := Topics{}
-	index := goirs.DeserializeFrequencyIndex("freq.index")
+	index := goirs.DeserializeFrequencyIndex(config.IndexFile)
 
 	err = xml.Unmarshal(data, &read)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(index.Weight[8])
+
 	for _, d := range read.Topics {
 		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)
 		res := goirs.GetQuerySimilarities(query, index).GetNGreatest()
 
-		fmt.Println("Consulta:", d.Desc)
-		fmt.Println("Documentos relevantes:")
+		i := 0
 		for _, val := range res {
-			fmt.Println("Documento", index.DocNames[val.DocID], ", Ranking:", val.Weight)
+			i++
+			r := NewResult(d.ID, index.DocNames[val.DocID])
+			output = append(output, r)
+			if i == 5 {
+				break
+			}
 		}
 	}
+	write, err := os.Create(config.EvalFile)
+	if err != nil {
+		panic(err)
+	}
+
+	CsvEncode(output, write)
+	write.Close()
 }

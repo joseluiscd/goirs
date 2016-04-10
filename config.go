@@ -1,4 +1,4 @@
-package main
+package goirs
 
 import (
 	"encoding/json"
@@ -13,7 +13,9 @@ type Configuration struct {
 	StopperFile string
 	Stemmed     string
 	Stats       string
-	Index       string
+	IndexFile   string
+	QueryFile   string
+	EvalFile    string
 }
 
 //LoadConfiguration carga un archivo de configuración
@@ -37,7 +39,7 @@ func LoadConfiguration(file string) (*Configuration, error) {
 //Save guarda la configuración en un archivo
 func (cfg *Configuration) Save(file string) error {
 
-	content, err := json.Marshal(cfg)
+	content, err := json.MarshalIndent(cfg, "", "\t")
 	if err != nil {
 		return err
 	}

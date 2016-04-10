@@ -45,7 +45,7 @@ func main() {
 
 	//Generar configuración si es necesario
 	if generateConfig {
-		cfg := new(Configuration)
+		cfg := new(goirs.Configuration)
 		err := cfg.Save("./conf.data")
 		if err != nil {
 			fmt.Println("Fallo al crear la configuración")
@@ -55,7 +55,7 @@ func main() {
 	}
 
 	//Cargar configuración
-	config, err := LoadConfiguration(configLoc)
+	config, err := goirs.LoadConfiguration(configLoc)
 	dieOn(err)
 
 	//Prácticas a ejecutar
@@ -78,7 +78,7 @@ func main() {
 		var file *os.File
 
 		if config.StopperFile == "" {
-			file, err = os.Open(filepath.Join(config.Index, "stopper.txt"))
+			file, err = os.Open("stopper.txt")
 			dieOn(err)
 		} else {
 			file, err = os.Open(config.StopperFile)
@@ -110,7 +110,7 @@ func main() {
 		fmt.Println("Vamos a escribir el stemmer (si hay)")
 	}
 
-	if config.Index != "" {
+	if config.IndexFile != "" {
 		writeIndex = true
 		fmt.Println("Vamos a escribir el índice de frecuencias (si hay)")
 	}
@@ -142,11 +142,12 @@ func main() {
 			}
 
 			parsed := goirs.FilterFile(source)
+			docname := strings.SplitN(file.Name(), ".", 2)[0]
 
 			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized).
 				StopperWriterIterator(stop, stopped, writeStopped, stopper).
 				StemmerWriterIterator(stem, stemmed, writeStemmed).
-				AddToFrequencyIndex(freq, file.Name(), freqindex)
+				AddToFrequencyIndex(freq, docname, freqindex)
 		}
 
 	}
@@ -170,8 +171,7 @@ func main() {
 	freqindex = freqindex.ComputeAll()
 
 	if writeIndex {
-		path := filepath.Join(config.Index, "freq.index")
-		freqindex.Serialize(path)
+		freqindex.Serialize(config.IndexFile)
 	}
 
 }

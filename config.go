@@ -12,7 +12,6 @@ type Configuration struct {
 	Stopped     string
 	StopperFile string
 	Stemmed     string
-	Stats       string
 	IndexFile   string
 	QueryFile   string
 	EvalFile    string

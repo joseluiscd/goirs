@@ -169,10 +169,12 @@ func main() {
 	close(files)
 	wg.Wait()
 
-	freqindex = freqindex.ComputeAll()
+	if freq {
+		freqindex = freqindex.ComputeAll()
 
-	if writeIndex {
-		freqindex.Serialize(config.IndexFile)
+		if writeIndex {
+			freqindex.Serialize(config.IndexFile)
+		}
 	}
 
 }

@@ -130,19 +130,20 @@ func main() {
 
 		for file := range files {
 			source := filepath.Join(config.Corpus, file.Name())
+			docname := strings.SplitN(file.Name(), ".", 2)[0]
 
 			if writeTokenized {
-				tokenized = filepath.Join(config.Filtered, file.Name()+".tok")
+				tokenized = filepath.Join(config.Filtered, docname+".tok")
 			}
 			if writeStopped {
-				stopped = filepath.Join(config.Stopped, file.Name()+".stop")
+				stopped = filepath.Join(config.Stopped, docname+".stop")
 			}
 			if writeStemmed {
-				stemmed = filepath.Join(config.Stemmed, file.Name()+".stem")
+				stemmed = filepath.Join(config.Stemmed, docname+".stem")
 			}
 
 			parsed := goirs.FilterFile(source)
-			docname := strings.SplitN(file.Name(), ".", 2)[0]
+
 
 			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized).
 				StopperWriterIterator(stop, stopped, writeStopped, stopper).

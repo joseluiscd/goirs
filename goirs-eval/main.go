@@ -12,10 +12,6 @@ var (
 	stopper goirs.Stopper
 )
 
-func proccessQuery(query string) {
-	//tokens := goirs.TokenizerIterator(strings.NewReader(query)).StopperIterator(stopper)
-}
-
 func main() {
 	var output [][]string
 	var configLoc string
@@ -28,6 +24,12 @@ func main() {
 		panic(err)
 	}
 
+	stopperfile, err := os.Open(config.StopperFile)
+	if err != nil {
+		panic(err)
+	}
+
+	stopper := goirs.ReadStopper(stopperfile)
 	read := goirs.ReadXMLQueries(config)
 	index := goirs.DeserializeFrequencyIndex(config.IndexFile)
 

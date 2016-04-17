@@ -7,15 +7,17 @@ import (
 
 //Configuration es la estructura en la que guardamos la configuración
 type Configuration struct {
-	Corpus      string
-	Filtered    string
-	Tokenized   string
-	Stopped     string
-	StopperFile string
-	Stemmed     string
-	IndexFile   string
-	QueryFile   string
-	EvalFile    string
+	Corpus       string
+	Filtered     string
+	Tokenized    string
+	Stopped      string
+	StopperFile  string
+	Stemmed      string
+	IndexFile    string
+	QueryFile    string
+	EvalFile     string
+	Context      int
+	MaxDocuments int
 }
 
 //LoadConfiguration carga un archivo de configuración

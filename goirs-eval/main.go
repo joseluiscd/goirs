@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/xml"
 	"flag"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -30,18 +28,8 @@ func main() {
 		panic(err)
 	}
 
-	data, err := ioutil.ReadFile(config.QueryFile)
-	if err != nil {
-		panic(err)
-	}
-
-	read := Topics{}
+	read := goirs.ReadXMLQueries(config)
 	index := goirs.DeserializeFrequencyIndex(config.IndexFile)
-
-	err = xml.Unmarshal(data, &read)
-	if err != nil {
-		panic(err)
-	}
 
 	for _, d := range read.Topics {
 		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)

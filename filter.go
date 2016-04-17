@@ -57,7 +57,7 @@ func extractTitle(root *gosoup.Node) string {
 	return strings.TrimSpace(strings.Split(title.FirstChild.Data, "|")[0])
 }
 
-//Encontrar el meollo del asunto
+//Encontrar cuerpo (reescribir para cambiar el corpus)
 func writeBody(root *gosoup.Node, output io.Writer) {
 	//Vivan las funciones anónimas y la programación funcional!!!
 

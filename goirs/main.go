@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -95,7 +96,7 @@ func main() {
 	}
 
 	//Decidir qué hacemos en función de la configuración
-	if config.Filtered != "" {
+	if config.Tokenized != "" {
 		writeTokenized = true
 		fmt.Println("Vamos a escribir el tokenizado (si hay)")
 	}
@@ -133,7 +134,7 @@ func main() {
 			docname := strings.SplitN(file.Name(), ".", 2)[0]
 
 			if writeTokenized {
-				tokenized = filepath.Join(config.Filtered, docname+".tok")
+				tokenized = filepath.Join(config.Tokenized, docname+".tok")
 			}
 			if writeStopped {
 				stopped = filepath.Join(config.Stopped, docname+".stop")
@@ -143,12 +144,17 @@ func main() {
 			}
 
 			parsed := goirs.FilterFile(source)
+			filterDump, err := os.Create(filepath.Join(config.Filtered, docname))
+			dieOn(err)
 
+			parsedD := io.TeeReader(parsed, filterDump)
 
-			goirs.TokenizerWriterIterator(parsed, tokenized, writeTokenized).
+			goirs.TokenizerWriterIterator(parsedD, tokenized, writeTokenized).
 				StopperWriterIterator(stop, stopped, writeStopped, stopper).
 				StemmerWriterIterator(stem, stemmed, writeStemmed).
 				AddToFrequencyIndex(freq, docname, freqindex)
+
+			filterDump.Close()
 		}
 
 	}

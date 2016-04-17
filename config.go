@@ -9,6 +9,7 @@ import (
 type Configuration struct {
 	Corpus      string
 	Filtered    string
+	Tokenized   string
 	Stopped     string
 	StopperFile string
 	Stemmed     string

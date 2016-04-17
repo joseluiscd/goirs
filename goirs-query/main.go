@@ -33,6 +33,13 @@ func main() {
 	fmt.Println("Cargando índice...")
 	index := goirs.DeserializeFrequencyIndex(config.IndexFile)
 
+	fmt.Println("Cargando stopper...")
+	stopperfile, err := os.Open(config.StopperFile)
+	if err != nil {
+		panic(err)
+	}
+	stopper := goirs.ReadStopper(stopperfile)
+
 	bio := bufio.NewScanner(os.Stdin)
 
 	fmt.Print("Bienvenido al shell interactivo de GoIRS!!\n\nGoIRS -> ")

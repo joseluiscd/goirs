@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"gitlab.com/joseluiscd/goirs"
+	"joseluiscd/goirs"
 )
 
 func dieOn(err error) {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kljensen/snowball/spanish"
-	"gitlab.com/joseluiscd/goirs"
+	"joseluiscd/goirs"
 )
 
 func main() {

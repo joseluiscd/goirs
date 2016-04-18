@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"gitlab.com/joseluiscd/goirs"
+	"joseluiscd/goirs"
 )
 
 func main() {

@@ -17,5 +17,5 @@
 
 - 5 palabras más repetidas antes del stemmer: `cat *.stem | sort | uniq -c | sort -nr | head -n 5`
 - 5 palabras más repetidas después del stemmer: `cat *.stem | sort | uniq -c | sort -nr | head -n 5`
-- Máximo número de tokens por fichero: `wc -l *.tok | sort -nr | tail -n+2 | head -n 1`
-- Mínimo número de tokens por fichero `wc -l *.tok | sort -n | head -n 1`
+- Máximo número de tokens por fichero: `wc -l *.stem | sort -nr | tail -n+2 | head -n 1`
+- Mínimo número de tokens por fichero `wc -l *.stem | sort -n | head -n 1`

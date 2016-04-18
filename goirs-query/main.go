@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"gitlab.com/joseluiscd/goirs"
+	"joseluiscd/goirs"
 )
 
 var (

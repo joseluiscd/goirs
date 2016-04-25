@@ -49,7 +49,7 @@ func main() {
 		fmt.Println("Documentos relevantes:")
 		i := 0
 		for _, val := range res {
-			if i > 10 {
+			if i > config.MaxDocuments {
 				break
 			}
 			fmt.Println("Documento", index.DocNames[val.DocID], "\tRanking:", val.Weight)

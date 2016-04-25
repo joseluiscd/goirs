@@ -18,6 +18,14 @@ type Configuration struct {
 	EvalFile     string
 	Context      int
 	MaxDocuments int
+
+	//Peso necesario para considerar un documento relevante al calcular el peso okapi
+	Okapi struct {
+		Threshold float64
+		K1        float64
+		K3        float64
+		B         float64
+	}
 }
 
 //LoadConfiguration carga un archivo de configuración

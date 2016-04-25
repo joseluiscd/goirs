@@ -42,14 +42,14 @@ func main() {
 
 	bio := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("Bienvenido al shell interactivo de GoIRS!!\n\nGoIRS -> ")
+	fmt.Print("Bienvenido al shell interactivo de GoIRS!!\n(Versión con pesado OKAPI BM25)\n\nGoIRS (OKAPI)-> ")
 	for bio.Scan() {
 		query := goirs.TokenizerIterator(strings.NewReader(bio.Text())).StopperIterator(stopper).StemmerIterator().ToQuery(index)
-		res := goirs.GetOkapiWeight(query, index).GetNGreatest()
+		res := goirs.GetOkapiWeight(query, index, config.Okapi.Threshold).GetNGreatest()
 		fmt.Println("Documentos relevantes:")
 		i := 0
 		for _, val := range res {
-			if i > 10 {
+			if i > config.MaxDocuments {
 				break
 			}
 			fmt.Println("Documento", index.DocNames[val.DocID], "\tRanking:", val.Weight)
@@ -58,6 +58,6 @@ func main() {
 		if bio.Err() != nil {
 			os.Exit(1)
 		}
-		fmt.Print("GoIRS -> ")
+		fmt.Print("GoIRS (OKAPI)-> ")
 	}
 }

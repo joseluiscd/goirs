@@ -40,7 +40,9 @@ type FrequencyIndex struct {
 	//Pesos
 	Weight map[int]map[int]float64
 
-	mutex sync.Mutex
+	DocLength map[int]int
+	AvgLength float64
+	mutex     sync.Mutex
 }
 
 //AddToken añade un token al índice de frecuencias
@@ -77,6 +79,7 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	idToken := ind.AddToken(token)
 	idDoc := ind.AddDocument(doc)
 
+	ind.DocLength[idDoc]++
 	docInd := ind.TokensCount[idToken]
 
 	if docInd == nil {
@@ -87,7 +90,6 @@ func (ind *FrequencyIndex) AddAndCountToken(doc, token string) {
 	}
 
 	ind.TokensCount[idToken] = docInd
-
 }
 
 //NewFrequencyIndex es el constructor del índice de frecuencias
@@ -103,6 +105,8 @@ func NewFrequencyIndex() *FrequencyIndex {
 		make(map[int]int),
 		make(map[int]float64),
 		make(map[int]map[int]float64),
+		make(map[int]int),
+		0,
 		sync.Mutex{},
 	}
 }

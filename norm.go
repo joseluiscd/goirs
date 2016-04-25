@@ -74,10 +74,24 @@ func (ind *FrequencyIndex) NormalizeWeights() *FrequencyIndex {
 	return ind
 }
 
+//ComputeAverageDocumentLength calcula la longitud media de los documentos
+func (ind *FrequencyIndex) ComputeAverageDocumentLength() *FrequencyIndex {
+	sum := 0
+	ndocs := 0
+	for _, l := range ind.DocLength {
+		sum += l
+		ndocs++
+	}
+
+	ind.AvgLength = float64(sum) / float64(ndocs)
+
+	return ind
+}
+
 //ComputeAll hace los siguientes cálculos:
 // - Tf normalizado (contando la frecuencia máxima de un documento)
 // - Idf de cada token
 // - Peso normalizado
 func (ind *FrequencyIndex) ComputeAll() *FrequencyIndex {
-	return ind.ComputeMaxTokensDoc().NormalizeTf().ComputeIdf().ComputeWeights().NormalizeWeights()
+	return ind.ComputeMaxTokensDoc().NormalizeTf().ComputeIdf().ComputeWeights().NormalizeWeights().ComputeAverageDocumentLength()
 }

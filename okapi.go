@@ -25,7 +25,7 @@ func (k DocumentWeights) GetCi(ind *FrequencyIndex, thres float64, token int) fl
 }
 
 //GetOkapiWeight devuelve el peso Okapi BM25 para la consulta dada
-func GetOkapiWeight(q Query, ind *FrequencyIndex, thres float64) QueryResult {
+func GetOkapiWeight(q Query, ind *FrequencyIndex, thres float64, k1 float64, k3 float64, b float64) QueryResult {
 	weights := GetQuerySimilarities(q, ind).GetNGreatest()
 	toRet := make(QueryResult)
 

@@ -45,7 +45,7 @@ func main() {
 	fmt.Print("Bienvenido al shell interactivo de GoIRS!!\n(Versión con pesado OKAPI BM25)\n\nGoIRS (OKAPI)-> ")
 	for bio.Scan() {
 		query := goirs.TokenizerIterator(strings.NewReader(bio.Text())).StopperIterator(stopper).StemmerIterator().ToQuery(index)
-		res := goirs.GetOkapiWeight(query, index, config.Okapi.Threshold).GetNGreatest()
+		res := goirs.GetOkapiWeight(query, index, config.Okapi.Threshold, config.Okapi.K1, config.Okapi.K3, config.Okapi.B).GetNGreatest()
 		fmt.Println("Documentos relevantes:")
 		i := 0
 		for _, val := range res {

@@ -15,8 +15,10 @@ var (
 func main() {
 	var output [][]string
 	var configLoc string
+	var okapi bool
 
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")
+	flag.BoolVar(&okapi, "okapi", false, "Utilizar pesado okapi")
 	flag.Parse()
 
 	config, err := goirs.LoadConfiguration(configLoc)
@@ -35,14 +37,19 @@ func main() {
 
 	for _, d := range read.Topics {
 		query := goirs.TokenizerIterator(strings.NewReader(d.Desc)).StopperIterator(stopper).StemmerIterator().ToQuery(index)
-		res := goirs.GetQuerySimilarities(query, index).GetNGreatest()
+		var res goirs.DocumentWeights
+		if okapi {
+			res = goirs.GetOkapiWeight(query, index, config.Okapi.Threshold, config.Okapi.K1, config.Okapi.K3, config.Okapi.B).GetNGreatest()
+		} else {
+			res = goirs.GetQuerySimilarities(query, index).GetNGreatest()
+		}
 
 		i := 0
 		for _, val := range res {
 			i++
 			r := NewResult(d.ID, index.DocNames[val.DocID])
 			output = append(output, r)
-			if i == 5 {
+			if i == config.MaxDocuments {
 				break
 			}
 		}

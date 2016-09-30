@@ -27,7 +27,7 @@ import (
 	"strings"
 	"sync"
 
-	"joseluiscd/goirs"
+	"github.com/joseluiscd/goirs"
 )
 
 func dieOn(err error) {

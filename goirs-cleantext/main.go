@@ -13,7 +13,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with GoIRS.  If not, see <http://www.gnu.org/licenses/>.
 
-
 package main
 
 // Programa que utiliza funciones de la librería GoIRS para limpiar y tokenizar
@@ -23,7 +22,7 @@ import (
 	"fmt"
 	"os"
 
-	"joseluiscd/goirs"
+	"github.com/joseluiscd/goirs"
 )
 
 func main() {

@@ -13,7 +13,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with GoIRS.  If not, see <http://www.gnu.org/licenses/>.
 
-
 package main
 
 import (
@@ -21,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"joseluiscd/goirs"
+	"github.com/joseluiscd/goirs"
 )
 
 var (

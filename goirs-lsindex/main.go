@@ -13,15 +13,14 @@
 //    You should have received a copy of the GNU General Public License
 //    along with GoIRS.  If not, see <http://www.gnu.org/licenses/>.
 
-
 package main
 
 import (
 	"flag"
 	"fmt"
 
+	"github.com/joseluiscd/goirs"
 	"github.com/kljensen/snowball/spanish"
-	"joseluiscd/goirs"
 )
 
 func main() {
@@ -59,7 +58,5 @@ func main() {
 	if idterm != 0 {
 		fmt.Println("IDF:", findex.Idfi[idterm])
 	}
-
-
 
 }

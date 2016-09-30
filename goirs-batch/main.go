@@ -28,10 +28,6 @@ var (
 	stopper goirs.Stopper
 )
 
-func proccessQuery(query string) {
-	//tokens := goirs.TokenizerIterator(strings.NewReader(query)).StopperIterator(stopper)
-}
-
 func main() {
 	var configLoc string
 	flag.StringVar(&configLoc, "config", "./conf.data", "Especifica el archivo de configuración")

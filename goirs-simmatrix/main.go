@@ -17,41 +17,23 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"github.com/joseluiscd/goirs"
-	"github.com/kljensen/snowball/spanish"
 )
 
 func main() {
-	var term string
+	var matrixLoc string
 	var indexLoc string
 
 	flag.StringVar(&indexLoc, "index", "./index", "Index location")
-	flag.StringVar(&term, "t", "jaén", "Término a buscar")
-	flag.Parse()
+	flag.StringVar(&matrixLoc, "matrix", "./matrix.xml", "Similarity matrix location")
 
+	flag.Parse()
 	findex := goirs.DeserializeFrequencyIndex(indexLoc)
 	if findex == nil {
 		panic("UEUEUEU")
 	}
 
-	var ii int
-	for _ = range findex.TokenIds {
-		ii++
-	}
-	fmt.Println(ii, "tokens únicos")
-
-	var id int
-	for _ = range findex.DocIds {
-		id++
-	}
-	fmt.Println(id, "documentos")
-
-	term = spanish.Stem(term, false)
-	idterm := findex.TokenIds[term]
-	if idterm != 0 {
-		fmt.Println("IDF:", findex.Idfi[idterm])
-	}
+	findex.ComputeSimilarityMatrix().Serialize(matrixLoc)
 
 }

@@ -13,45 +13,28 @@
 //    You should have received a copy of the GNU General Public License
 //    along with GoIRS.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package goirs
 
 import (
-	"flag"
-	"fmt"
-
-	"github.com/joseluiscd/goirs"
-	"github.com/kljensen/snowball/spanish"
+	"bufio"
+	"io"
 )
 
-func main() {
-	var term string
-	var indexLoc string
-
-	flag.StringVar(&indexLoc, "index", "./index", "Index location")
-	flag.StringVar(&term, "t", "jaén", "Término a buscar")
-	flag.Parse()
-
-	findex := goirs.DeserializeFrequencyIndex(indexLoc)
-	if findex == nil {
-		panic("UEUEUEU")
+func lineReader(scanner *bufio.Scanner, output chan string) {
+	for scanner.Scan() {
+		line := scanner.Text()
+		output <- line
 	}
+}
 
-	var ii int
-	for _ = range findex.TokenIds {
-		ii++
-	}
-	fmt.Println(ii, "tokens únicos")
+//ReadLines reads lines from a file and returns a StringIterator
+func ReadLines(inputStream io.Reader) StringIterator {
+	scanner := bufio.NewScanner(inputStream)
+	scanner.Split(bufio.ScanLines)
 
-	var id int
-	for _ = range findex.DocIds {
-		id++
-	}
-	fmt.Println(id, "documentos")
+	output := make(chan string, BUFFERSIZE)
 
-	term = spanish.Stem(term, false)
-	idterm := findex.TokenIds[term]
-	if idterm != 0 {
-		fmt.Println("IDF:", findex.Idfi[idterm])
-	}
+	go lineReader(scanner, output)
+	return output
 
 }

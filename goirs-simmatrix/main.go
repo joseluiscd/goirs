@@ -22,11 +22,11 @@ import (
 )
 
 func main() {
-	var matrixLoc string
-	var indexLoc string
+	var indexLoc, matrixLoc, matrixNormLoc string
 
 	flag.StringVar(&indexLoc, "index", "./index", "Index location")
 	flag.StringVar(&matrixLoc, "matrix", "./matrix.xml", "Similarity matrix location")
+	flag.StringVar(&matrixNormLoc, "matrixNorm", "./matrixNorm.xml", "Normalized similarity matrix")
 
 	flag.Parse()
 	findex := goirs.DeserializeFrequencyIndex(indexLoc)
@@ -34,6 +34,9 @@ func main() {
 		panic("UEUEUEU")
 	}
 
-	findex.ComputeSimilarityMatrix().Serialize(matrixLoc)
+	sm := findex.ComputeSimilarityMatrix()
+	sm.Serialize(matrixLoc)
+	sm.Percentage()
+	sm.Serialize(matrixNormLoc)
 
 }

@@ -41,8 +41,9 @@ func (ind *FrequencyIndex) NormalizeTf() *FrequencyIndex {
 
 //ComputeIdf calcula el IDF de cada token
 func (ind *FrequencyIndex) ComputeIdf() *FrequencyIndex {
+	ndocs := float64(len(ind.DocIds))
 	for token, docs := range ind.TokensCount {
-		ind.Idfi[token] = math.Log2(float64(ind.NextDoc-1) / float64(len(docs)))
+		ind.Idfi[token] = math.Log2(ndocs / float64(len(docs)))
 	}
 	return ind
 }
